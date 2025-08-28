@@ -23,6 +23,6 @@ class Auth(BaseAuth):
     def login(self, login, password):
         user = authenticate(username=login, password=password)
         if user is not None and user.is_active:
-            return user.username
+            return (user.username, "")
 
         return None

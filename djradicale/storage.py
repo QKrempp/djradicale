@@ -31,7 +31,7 @@ from radicale.pathutils import strip_path, unstrip_path
 
 from .models import DBCollection, DBItem, DBProperties
 
-logger = logging.getLogger('djradicale')
+logger = logging.getLogger("djradicale")
 
 
 class Collection(BaseCollection):
@@ -58,10 +58,7 @@ class Collection(BaseCollection):
     def upload(self, href, item):
         try:
             dbcollection = DBCollection.objects.get(path=self.path)
-            dbitem, _ = DBItem.objects.get_or_create(
-                collection=dbcollection,
-                name=href
-            )
+            dbitem, _ = DBItem.objects.get_or_create(collection=dbcollection, name=href)
             dbitem.text = item.serialize()
             dbitem.save()
         except DBCollection.DoesNotExist:
@@ -104,25 +101,28 @@ class Collection(BaseCollection):
         else:
             if collection.last_modified:
                 return datetime.datetime.strftime(
-                    collection.last_modified, '%a, %d %b %Y %H:%M:%S %z')
+                    collection.last_modified, "%a, %d %b %Y %H:%M:%S %z"
+                )
 
 
 class Storage(BaseStorage):
-    def discover(self, path, depth='0'):
+    def discover(
+        self, path, depth="0", child_context_manager=None, user_groups=set([])
+    ):
         stripped_path = strip_path(path)
 
-        if stripped_path == '':
-            yield Collection('')
+        if stripped_path == "":
+            yield Collection("")
             return
 
         for c in DBCollection.objects.filter(path=stripped_path).as_collections():
             yield c
 
-        prefix, _, name = stripped_path.rpartition('/')
+        prefix, _, name = stripped_path.rpartition("/")
         for i in DBItem.objects.filter(collection__path=prefix, name=name).as_items():
             yield i
 
-        if depth == '0':
+        if depth == "0":
             return
 
         for i in DBItem.objects.filter(collection__path=stripped_path).as_items():
@@ -131,7 +131,9 @@ class Storage(BaseStorage):
     def move(self, item, to_collection, to_href):
         try:
             dbcollection = DBCollection.objects.get(path=to_collection._path)
-            dbitem = DBItem.objects.get(collection__path=item.collection._path, name=item.href)
+            dbitem = DBItem.objects.get(
+                collection__path=item.collection._path, name=item.href
+            )
         except DBCollection.DoesNotExist:
             pass
         except DBItem.DoesNotExist:
@@ -145,12 +147,12 @@ class Storage(BaseStorage):
         stripped_path = strip_path(href)
 
         c, created = DBCollection.objects.get_or_create(
-            path=stripped_path,
-            parent_path=os.path.dirname(stripped_path))
+            path=stripped_path, parent_path=os.path.dirname(stripped_path)
+        )
 
-        return c.as_collection()
+        return (c.as_collection(), {}, [])
 
     @types.contextmanager
-    def acquire_lock(self, mode, user):
+    def acquire_lock(self, mode, user, path="", request=""):
         with transaction.atomic():
             yield
