@@ -58,13 +58,16 @@ class Collection(BaseCollection):
     def upload(self, href, item):
         try:
             dbcollection = DBCollection.objects.get(path=self.path)
-            dbitem, _ = DBItem.objects.get_or_create(collection=dbcollection, name=href)
+            dbitem, created = DBItem.objects.get_or_create(
+                collection=dbcollection, name=href
+            )
+            old_item = dbitem.as_item() if created else None
             dbitem.text = item.serialize()
             dbitem.save()
         except DBCollection.DoesNotExist:
             pass
         else:
-            return item
+            return (item, old_item)
 
     def delete(self, href=None):
         if href is None:
