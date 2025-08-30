@@ -32,9 +32,10 @@ class Rights(BaseRights):
         - W: write collections (excluding address books and calendars)
         - w: write address book and calendar collections
         """
+
         # anonymous is forbidden
         if not user:
-            return ''
+            return ""
 
         sane_path = pathutils.strip_path(path)
 
@@ -43,14 +44,14 @@ class Rights(BaseRights):
 
         if user != sane_path.split("/", maxsplit=1)[0]:
             return ""
-        
+
         # access to root
         if "/" not in sane_path:
-            return 'RW'
+            return "RW"
 
         # read+write access to owned collections
         if sane_path.count("/") == 1:
-            return 'rw'
+            return "rw"
 
         # anyone else is forbidden
         return ""

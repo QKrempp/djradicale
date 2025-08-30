@@ -149,9 +149,12 @@ class Storage(BaseStorage):
     def create_collection(self, href, collection=None, props=None):
         stripped_path = strip_path(href)
 
-        c, created = DBCollection.objects.get_or_create(
+        c, _ = DBCollection.objects.get_or_create(
             path=stripped_path, parent_path=os.path.dirname(stripped_path)
         )
+
+        if props:
+            c.as_collection().set_meta(props)
 
         return (c.as_collection(), {}, [])
 
