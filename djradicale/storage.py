@@ -112,9 +112,7 @@ class Storage(BaseStorage):
     def discover(
         self, path, depth="0", child_context_manager=None, user_groups=set([])
     ):
-        print(f"Depth: {depth}")
         stripped_path = strip_path(path)
-        print(f"Stripped path: {stripped_path}")
 
         if stripped_path == "":
             yield Collection("")
