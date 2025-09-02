@@ -131,5 +131,3 @@ DJRADICALE_CONFIG = {
         "type": "djradicale.storage",
     },
 }
-
-APPEND_SLASH = False

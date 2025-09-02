@@ -112,7 +112,9 @@ class Storage(BaseStorage):
     def discover(
         self, path, depth="0", child_context_manager=None, user_groups=set([])
     ):
+        print(f"Depth: {depth}")
         stripped_path = strip_path(path)
+        print(f"Stripped path: {stripped_path}")
 
         if stripped_path == "":
             yield Collection("")
@@ -127,6 +129,11 @@ class Storage(BaseStorage):
 
         if depth == "0":
             return
+        else:
+            for c in DBCollection.objects.filter(
+                parent_path=stripped_path
+            ).as_collections():
+                yield c
 
         for i in DBItem.objects.filter(collection__path=stripped_path).as_items():
             yield i
